@@ -1,0 +1,4 @@
+.vercel/
+*.log
+test-artifacts/
+

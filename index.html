@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#155eef">
+    <meta name="description" content="Калькулятор стоимости заказа и генератор коммерческих предложений">
+    <title>Калькулятор коммерческого предложения</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">К основному содержанию</a>
+
+    <header class="app-header">
+      <div class="header-inner">
+        <button class="brand" type="button" data-view-target="editor" aria-label="Открыть редактор">
+          <span class="brand-mark" aria-hidden="true">КП</span>
+          <span>
+            <strong>Калькулятор КП</strong>
+            <small>Расчёт и готовый текст</small>
+          </span>
+        </button>
+
+        <nav class="app-nav" id="app-nav" aria-label="Разделы приложения">
+          <button class="nav-button is-active" type="button" data-view-target="editor" aria-current="page">
+            Редактор
+          </button>
+          <button class="nav-button" type="button" data-view-target="result">
+            Готовое КП
+          </button>
+          <button class="nav-button" type="button" data-view-target="history">
+            Сохранённые <span class="nav-count" id="history-count" aria-label="0 сохранённых">0</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="app-main">
+      <section class="app-view" id="editor-view" data-view="editor" aria-labelledby="editor-heading">
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">Новый расчёт</p>
+            <h1 id="editor-heading">Собери предложение</h1>
+            <p>Заполни позиции — итог и текст обновятся автоматически.</p>
+          </div>
+          <span class="save-status" id="save-status" role="status">Данные остаются в браузере</span>
+        </div>
+
+        <div class="editor-layout">
+          <form class="editor-form" id="quote-form" novalidate>
+            <div class="form-error-summary" id="form-error-summary" role="alert" tabindex="-1" hidden></div>
+
+            <section class="panel form-section" aria-labelledby="details-heading">
+              <div class="section-heading">
+                <span class="step-number" aria-hidden="true">1</span>
+                <div>
+                  <h2 id="details-heading">Основа предложения</h2>
+                  <p>Тема и обращение попадут в готовый текст.</p>
+                </div>
+              </div>
+
+              <div class="field-grid field-grid-two">
+                <div class="field-group">
+                  <label for="quote-title">Тема предложения</label>
+                  <input id="quote-title" name="title" type="text" maxlength="160" autocomplete="off">
+                  <p class="field-hint">Например: «Поставка Wi-Fi оборудования»</p>
+                </div>
+                <div class="field-group">
+                  <label for="quote-greeting">Обращение</label>
+                  <input id="quote-greeting" name="greeting" type="text" maxlength="120" autocomplete="off">
+                  <p class="field-hint">Можно оставить нейтральное обращение</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel form-section" aria-labelledby="items-heading">
+              <div class="section-heading section-heading-actions">
+                <div class="section-title-group">
+                  <span class="step-number" aria-hidden="true">2</span>
+                  <div>
+                    <h2 id="items-heading">Позиции заказа</h2>
+                    <p>Количество умножается на цену за единицу.</p>
+                  </div>
+                </div>
+                <button class="button button-secondary button-small" type="button" data-action="add-item">
+                  <span aria-hidden="true">＋</span> Добавить позицию
+                </button>
+              </div>
+
+              <div class="items-list" id="items-list" aria-live="polite"></div>
+
+              <div class="items-footer">
+                <button class="text-button" type="button" data-action="add-item">
+                  <span aria-hidden="true">＋</span> Добавить ещё одну позицию
+                </button>
+                <div class="running-total">
+                  <span>Итого</span>
+                  <strong id="editor-total">0 ₽</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel form-section" aria-labelledby="conditions-heading">
+              <div class="section-heading">
+                <span class="step-number" aria-hidden="true">3</span>
+                <div>
+                  <h2 id="conditions-heading">Условия</h2>
+                  <p>Пустые поля не будут добавлены в предложение.</p>
+                </div>
+              </div>
+
+              <div class="field-grid field-grid-two">
+                <div class="field-group">
+                  <label for="payment-terms">Условия оплаты</label>
+                  <input id="payment-terms" name="paymentTerms" type="text" maxlength="240" placeholder="Например: 50% предоплата">
+                </div>
+                <div class="field-group">
+                  <label for="delivery-terms">Срок поставки</label>
+                  <input id="delivery-terms" name="deliveryTerms" type="text" maxlength="240" placeholder="Например: 10 рабочих дней">
+                </div>
+                <div class="field-group">
+                  <label for="warranty">Гарантия</label>
+                  <input id="warranty" name="warranty" type="text" maxlength="240" placeholder="Например: 12 месяцев">
+                </div>
+                <div class="field-group">
+                  <label for="valid-until">Предложение действительно до</label>
+                  <input id="valid-until" name="validUntil" type="text" maxlength="120" placeholder="Например: 31 августа 2026 года">
+                </div>
+                <div class="field-group field-span-two">
+                  <label for="quote-note">Дополнительный комментарий</label>
+                  <textarea id="quote-note" name="note" rows="3" maxlength="800" placeholder="Например: доставка до объекта включена в стоимость"></textarea>
+                </div>
+                <div class="field-group field-span-two">
+                  <label for="quote-signature">Подпись</label>
+                  <textarea id="quote-signature" name="signature" rows="3" maxlength="400" placeholder="Например: С уважением, Михаил&#10;Телефон: +7 …"></textarea>
+                </div>
+              </div>
+            </section>
+
+            <div class="form-actions panel">
+              <div>
+                <span class="form-actions-label">Общая стоимость</span>
+                <strong id="form-total">0 ₽</strong>
+              </div>
+              <div class="button-row">
+                <button class="button button-ghost" type="button" data-action="clear-draft">Очистить</button>
+                <button class="button button-primary" type="button" data-action="open-result">
+                  Получить предложение <span aria-hidden="true">→</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <aside class="preview-panel panel" aria-labelledby="preview-heading">
+            <div class="preview-heading-row">
+              <div>
+                <p class="eyebrow">Живой результат</p>
+                <h2 id="preview-heading">Текст предложения</h2>
+              </div>
+              <span class="privacy-badge">Только в браузере</span>
+            </div>
+            <pre class="offer-text offer-text-preview" id="live-preview"></pre>
+            <p class="preview-note">Перед копированием приложение проверит обязательные поля.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="app-view" id="result-view" data-view="result" aria-labelledby="result-heading" hidden>
+        <div class="view-heading result-page-heading">
+          <div>
+            <p class="eyebrow">Готово к использованию</p>
+            <h1 id="result-heading" tabindex="-1">Коммерческое предложение</h1>
+            <p id="result-topic">Проверь текст и выбери нужное действие.</p>
+          </div>
+          <div class="result-total-card">
+            <span>Итого</span>
+            <strong id="result-total">0 ₽</strong>
+          </div>
+        </div>
+
+        <div class="result-layout">
+          <article class="panel result-document" id="print-document">
+            <div class="document-kicker">Коммерческое предложение</div>
+            <pre class="offer-text" id="result-text"></pre>
+          </article>
+
+          <aside class="panel result-actions" aria-label="Действия с предложением">
+            <h2>Что сделать с результатом</h2>
+            <p>Все действия выполняются на этом устройстве.</p>
+            <button class="button button-primary button-full" type="button" data-action="copy-result">Скопировать текст</button>
+            <button class="button button-secondary button-full" type="button" data-action="download-result">Скачать .txt</button>
+            <button class="button button-secondary button-full" type="button" data-action="print-result">Распечатать / PDF</button>
+            <button class="button button-secondary button-full" type="button" data-action="save-offer">Сохранить в браузере</button>
+            <hr>
+            <button class="text-button" type="button" data-action="back-to-editor"><span aria-hidden="true">←</span> Вернуться к редактированию</button>
+          </aside>
+        </div>
+      </section>
+
+      <section class="app-view" id="history-view" data-view="history" aria-labelledby="history-heading" hidden>
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">Локальная история</p>
+            <h1 id="history-heading" tabindex="-1">Сохранённые предложения</h1>
+            <p>Записи доступны только в этом браузере и исчезнут при очистке его данных.</p>
+          </div>
+          <button class="button button-primary" type="button" data-view-target="editor">Создать предложение</button>
+        </div>
+
+        <div class="empty-state panel" id="history-empty">
+          <span class="empty-icon" aria-hidden="true">≡</span>
+          <h2>Здесь пока пусто</h2>
+          <p>Сформируй предложение и нажми «Сохранить в браузере».</p>
+          <button class="button button-secondary" type="button" data-view-target="editor">Перейти в редактор</button>
+        </div>
+
+        <div class="history-grid" id="history-list" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+
+    <template id="item-template">
+      <article class="item-card" data-item-id="">
+        <div class="item-index" aria-hidden="true"></div>
+        <div class="item-fields">
+          <div class="field-group item-name-field">
+            <label>Наименование</label>
+            <input type="text" data-field="name" maxlength="240" autocomplete="off" placeholder="Например: точка доступа">
+            <p class="field-error" data-error-for="name" hidden></p>
+          </div>
+          <div class="field-group item-unit-field">
+            <label>Ед.</label>
+            <input type="text" data-field="unit" maxlength="24" autocomplete="off" placeholder="шт.">
+          </div>
+          <div class="field-group item-number-field">
+            <label>Количество</label>
+            <input type="text" inputmode="decimal" data-field="quantity" maxlength="20" autocomplete="off">
+            <p class="field-error" data-error-for="quantity" hidden></p>
+          </div>
+          <div class="field-group item-number-field">
+            <label>Цена, ₽</label>
+            <input type="text" inputmode="decimal" data-field="price" maxlength="20" autocomplete="off" placeholder="0">
+            <p class="field-error" data-error-for="price" hidden></p>
+          </div>
+          <div class="item-sum">
+            <span>Сумма</span>
+            <strong data-line-total>0 ₽</strong>
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="icon-button" type="button" data-action="duplicate-item" aria-label="Дублировать позицию" title="Дублировать">⧉</button>
+          <button class="icon-button icon-button-danger" type="button" data-action="remove-item" aria-label="Удалить позицию" title="Удалить">×</button>
+        </div>
+      </article>
+    </template>
+
+    <template id="history-template">
+      <article class="history-card panel" data-history-id="">
+        <div class="history-card-main">
+          <div class="history-card-topline">
+            <time data-history-date></time>
+            <span data-history-items></span>
+          </div>
+          <h2 data-history-title></h2>
+          <strong class="history-total" data-history-total></strong>
+        </div>
+        <div class="history-actions">
+          <button class="button button-primary button-small" type="button" data-history-action="view">Открыть</button>
+          <button class="button button-secondary button-small" type="button" data-history-action="edit">Редактировать</button>
+          <button class="button button-ghost button-small" type="button" data-history-action="copy">Копировать</button>
+          <button class="button button-ghost button-small" type="button" data-history-action="duplicate">Создать копию</button>
+          <button class="button button-danger button-small" type="button" data-history-action="delete">Удалить</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="domain.js"></script>
+    <script src="storage.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
